@@ -1,0 +1,9 @@
+[package]
+name = "rust_sever"
+version = "0.0.1"
+edition = "2018"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+warp = "0.3"
+serde_json = "1.0"
