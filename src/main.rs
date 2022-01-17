@@ -11,13 +11,21 @@ use serde_json::json;
 use serde_json::{Result, Value};
 use serde::{Deserialize, Serialize};
 
-//use rusqlite::{params, Connection, Result as SqlResult};
+use sqlx::sqlite::SqlitePoolOptions;
+use sqlx::sqlite::SqlitePool;
+use sqlx::FromRow;
 
-
+#[derive(Clone)]
+#[derive(Debug, FromRow,Serialize)]
 struct Article{
-    articleTitle: String,
-    articleText: String,
+    ID:i64,
+    TITLE: String,
+    AUTHOR: String,
+    STATE: String,
+    PERMISSION: i32,
+    TEXT: String,
 }
+
 struct ArticleList {
     articles: Vec<Article>,
 }
@@ -48,9 +56,24 @@ fn read_config() -> String{
     config
 }
 
+// fn get_article_list(database:sqlite::Connection) -> Value{
+
+// }
+
 #[tokio::main]
 async fn main() {
-    let config:Config = serde_json::from_str(read_config().as_str()).unwrap();
+    let config:Config = serde_json::from_str(read_config().as_str()).unwrap();//初始化配置文件
+    let mut database = SqlitePoolOptions::new()
+        .connect("./database.db")
+        .await.unwrap();
+
+    let result = sqlx::query_as::<_,Article>(r"SELECT * FROM articles")
+        //.map(move |a|{})
+        .fetch_all(&database)
+        .await.unwrap();
+    println!("{:?}", result);
+    println!("---------------------------");
+
     println!("Welcome to little guy's sever console!");
     println!("{:?}", config);
     
@@ -70,22 +93,9 @@ async fn main() {
     let get_article = 
         warp::path("getArticles")
         .and(warp::path::param())//参数是文章分区
-        .map(|article_partition: String| {
+        .map(move |article_partition: String| {
             format!("The article_partition you request is: {}", article_partition);
-            //let article_list = ArticleList{articles: vec![Article{articleTitle:String::from("title1"), articleText: String::from("text1"})]};
-            //let article_list = articles{vec![{articleTitle: "tt1"},]};
-            let article_list = json!({
-                "articles":[
-                    {
-                        "articleTitle": "tt1",
-                        "articleText": "text1"
-                    },
-                    {
-                        "articleTitle": "tt2",
-                        "articleText": "text2"
-                    }
-                ]
-            });
+            let article_list = json!(result);
             warp::reply::json(&article_list)
         });
 
@@ -138,6 +148,6 @@ async fn main() {
         .or(get_navItems);
 
     warp::serve(routes)
-        .run(([0, 0, 0, 0], 3031))
+        .run(([0, 0, 0, 0], 3032))
         .await;
 }

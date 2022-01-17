@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Vue.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <!-- Jquery.js -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>  
+
+    <title>Login</title>
+</head>
+
+<body>
+    <div class="Login">
+        <form method="post">
+            <label for="account"></label>
+            <p>Account:<input type="text" id="account" v-model="userData.password"></p>
+            <p>Password:<input type="password" v-model="userData.account"></p>
+            <button type="submit" @click="submit">Submit</button>
+        </form>
+    </div>
+
+</body>
+
+<script type="text/javascript">
+    // disable production tip text
+    Vue.config.productionTip = false;
+
+    const vm = new Vue({
+        el: ".Login",
+        data: {
+            userData: {
+                account: "",
+                password: ""
+            }
+        }, methods: {
+            submit() {
+
+                console.log(JSON.stringify(this.userData));
+                return;
+
+                $.ajax({
+                    type: "post",
+                    contentType: "application/json;charset=UTF-8",
+                    url: "你的服务器后端地址",
+                    data: JSON.stringify(this.userData),
+                    success(result) {
+                        console.log(`ajax success,return message:${result}`);
+                    },
+                    error(e) {
+                        console.error(`ajax failure,return message:${e.responseText}`);
+                    }
+                })
+
+            }
+        }
+    })
+
+</script>
+
+</html>
