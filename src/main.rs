@@ -148,6 +148,6 @@ async fn main() {
         .or(get_navItems);
 
     warp::serve(routes)
-        .run(([0, 0, 0, 0], 3032))
+        .run(([0, 0, 0, 0], 80))
         .await;
 }
